@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:ffmpeg_kit_flutter_https_gpl/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter_https_gpl/ffmpeg_kit_config.dart';
+import 'package:ffmpeg_kit_flutter_https_gpl/ffmpeg_session.dart';
 import 'package:ffmpeg_kit_flutter_https_gpl/return_code.dart';
 import 'package:path/path.dart';
 
@@ -22,6 +23,7 @@ enum TrimmerEvent { initialized }
 /// * [videoPlaybackControl()]
 class Trimmer {
   // final FlutterFFmpeg _flutterFFmpeg = FFmpegKit();
+  FFmpegSession? _ffmpegSession;
 
   final StreamController<TrimmerEvent> _controller =
       StreamController<TrimmerEvent>.broadcast();
@@ -173,6 +175,11 @@ class Trimmer {
     String? videoFileName,
     StorageDir? storageDir,
   }) async {
+    if (_ffmpegSession != null) {
+      debugPrint('FFmpeg is already running');
+      return;
+    }
+
     final String videoPath = currentVideoFile!.path;
     final String videoName = basename(videoPath).split('.')[0];
 
@@ -247,7 +254,7 @@ class Trimmer {
 
     command += '"$outputPath"';
 
-    FFmpegKit.executeAsync(command, (session) async {
+    _ffmpegSession = await FFmpegKit.executeAsync(command, (session) async {
       final state =
           FFmpegKitConfig.sessionStateToString(await session.getState());
       final returnCode = await session.getReturnCode();
@@ -263,6 +270,8 @@ class Trimmer {
         debugPrint('Couldn\'t save the video');
         onSave(null);
       }
+
+      _ffmpegSession = null;
     });
 
     // return _outputPath;
@@ -301,6 +310,7 @@ class Trimmer {
 
   /// Clean up
   void dispose() {
+    _ffmpegSession?.cancel();
     _videoPlayerController?.dispose();
     _controller.close();
   }
