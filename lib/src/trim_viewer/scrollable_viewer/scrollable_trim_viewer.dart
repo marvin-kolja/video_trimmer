@@ -143,6 +143,7 @@ class ScrollableTrimViewer extends StatefulWidget {
 class _ScrollableTrimViewerState extends State<ScrollableTrimViewer>
     with TickerProviderStateMixin {
   final _trimmerAreaKey = GlobalKey();
+
   File? get _videoFile => widget.trimmer.currentVideoFile;
 
   double _videoStartPos = 0.0;
@@ -568,7 +569,6 @@ class _ScrollableTrimViewerState extends State<ScrollableTrimViewer>
     widget.onChangePlaybackState!(false);
     if (_videoFile != null) {
       videoPlayerController.setVolume(0.0);
-      videoPlayerController.dispose();
       widget.onChangePlaybackState!(false);
     }
     super.dispose();

@@ -96,7 +96,6 @@ class _VideoViewerState extends State<VideoViewer> {
 
   @override
   void dispose() {
-    widget.trimmer.dispose();
     super.dispose();
   }
 }
