@@ -28,6 +28,10 @@ class Trimmer {
   final StreamController<TrimmerEvent> _controller =
       StreamController<TrimmerEvent>.broadcast();
 
+  final _progressStreamController = StreamController<double>();
+
+  Stream<double> get progressStream => _progressStreamController.stream;
+
   VideoPlayerController? _videoPlayerController;
 
   VideoPlayerController? get videoPlayerController => _videoPlayerController;
@@ -264,6 +268,7 @@ class Trimmer {
       if (ReturnCode.isSuccess(returnCode)) {
         debugPrint("FFmpeg processing completed successfully.");
         debugPrint('Video successfully saved');
+        _progressStreamController.add(1);
         onSave(outputPath);
       } else {
         debugPrint("FFmpeg processing failed.");
@@ -272,6 +277,12 @@ class Trimmer {
       }
 
       _ffmpegSession = null;
+    }, (log) {
+      debugPrint(log.getMessage());
+    }, (statistics) {
+      final progress =
+          statistics.getTime() / (endPoint - startPoint).inMilliseconds;
+      _progressStreamController.add(progress.clamp(0, 1));
     });
 
     // return _outputPath;
@@ -310,6 +321,7 @@ class Trimmer {
 
   /// Clean up
   void dispose() {
+    _progressStreamController.close();
     _ffmpegSession?.cancel();
     _videoPlayerController?.dispose();
     _controller.close();
