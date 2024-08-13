@@ -90,6 +90,26 @@ class TrimViewer extends StatefulWidget {
   /// thumbnails are loaded.
   final VoidCallback? onThumbnailLoadingComplete;
 
+  /// The initial trim start position.
+  ///
+  /// If provided, the trimmer will use this value as initial the trim start
+  /// position.
+  ///
+  /// Currently only works with [FixedTrimViewer].
+  ///
+  /// See [initialEnd] for end position.
+  final Duration? initialStart;
+
+  /// The initial trim end position.
+  ///
+  /// If provided, the trimmer will use this value as the initial trim end
+  /// position.
+  ///
+  /// Currently only works with [FixedTrimViewer].
+  ///
+  /// See [initialStart] for start position.
+  final Duration? initialEnd;
+
   /// Widget for displaying the video trimmer.
   ///
   /// This has frame wise preview of the video with a
@@ -184,6 +204,8 @@ class TrimViewer extends StatefulWidget {
     this.editorProperties = const TrimEditorProperties(),
     this.areaProperties = const TrimAreaProperties(),
     this.onThumbnailLoadingComplete,
+    this.initialStart,
+    this.initialEnd,
   }) : super(key: key);
 
   @override
@@ -263,6 +285,8 @@ class _TrimViewerState extends State<TrimViewer> with TickerProviderStateMixin {
           widget.onThumbnailLoadingComplete!();
         }
       },
+      initialStart: widget.initialStart,
+      initialEnd: widget.initialEnd,
     );
 
     return _isScrollableAllowed == null

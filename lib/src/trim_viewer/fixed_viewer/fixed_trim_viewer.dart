@@ -68,6 +68,18 @@ class FixedTrimViewer extends StatefulWidget {
 
   final VoidCallback onThumbnailLoadingComplete;
 
+  /// The initial trim start position. This can be used to set the
+  /// initial start position of the trimmer area.
+  ///
+  /// See [initialEnd] for setting the initial end position.
+  final Duration? initialStart;
+
+  /// The initial trim end position. This can be used to set the
+  /// initial end position of the trimmer area.
+  ///
+  /// See [initialStart] for setting the initial start position.
+  final Duration? initialEnd;
+
   /// Widget for displaying the video trimmer.
   ///
   /// This has frame wise preview of the video with a
@@ -127,6 +139,8 @@ class FixedTrimViewer extends StatefulWidget {
     this.onChangePlaybackState,
     this.editorProperties = const TrimEditorProperties(),
     this.areaProperties = const FixedTrimAreaProperties(),
+    this.initialStart,
+    this.initialEnd,
   });
 
   @override
@@ -217,14 +231,28 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
         this.thumbnailWidget = thumbnailWidget;
         Duration totalDuration = videoPlayerController.value.duration;
 
+        Duration? initialEnd = widget.initialEnd;
+
+        if (initialEnd != null) {
+          assert(initialEnd <= totalDuration,
+              "initialEnd must be less than or equal to the total duration of the video");
+          if (initialEnd > totalDuration) {
+            initialEnd = null;
+          }
+        }
+
+        if (initialEnd != null &&
+            initialEnd > const Duration(milliseconds: 0) &&
+            initialEnd < totalDuration) {
+          fraction = initialEnd.inMilliseconds / totalDuration.inMilliseconds;
+        }
+
         if (widget.maxVideoLength > const Duration(milliseconds: 0) &&
             widget.maxVideoLength < totalDuration) {
-          if (widget.maxVideoLength < totalDuration) {
-            fraction = widget.maxVideoLength.inMilliseconds /
-                totalDuration.inMilliseconds;
-
-            maxLengthPixels = _thumbnailViewerW * fraction!;
-          }
+          final maxLengthFraction = widget.maxVideoLength.inMilliseconds /
+              totalDuration.inMilliseconds;
+          fraction ??= maxLengthFraction;
+          maxLengthPixels = _thumbnailViewerW * maxLengthFraction;
         } else {
           maxLengthPixels = _thumbnailViewerW;
         }
@@ -236,9 +264,27 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
         widget.onChangeEnd!(_videoEndPos);
 
         _endPos = Offset(
-          maxLengthPixels != null ? maxLengthPixels! : _thumbnailViewerW,
+          _thumbnailViewerW * (fraction ?? 1),
           _thumbnailViewerH,
         );
+
+        final initialStart = widget.initialStart;
+
+        if (initialStart != null &&
+            initialStart > const Duration(milliseconds: 0) &&
+            initialStart < totalDuration) {
+          final videoStartFraction =
+              initialStart.inMilliseconds / _videoDuration;
+
+          _videoStartPos = _videoDuration.toDouble() * videoStartFraction;
+
+          widget.onChangeStart!(_videoStartPos);
+
+          _startPos = Offset(
+            _thumbnailViewerW * videoStartFraction,
+            0,
+          );
+        }
 
         // Defining the tween points
         _linearTween = Tween(begin: _startPos.dx, end: _endPos.dx);
