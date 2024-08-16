@@ -26,6 +26,9 @@ class FixedTrimViewer extends StatefulWidget {
   /// For defining the maximum length of the output video.
   final Duration maxVideoLength;
 
+  /// For defining the minimum length of the output video.
+  final Duration minVideoLength;
+
   /// For showing the start and the end point of the
   /// video on top of the trimmer area.
   ///
@@ -100,6 +103,10 @@ class FixedTrimViewer extends StatefulWidget {
   /// output video.
   ///
   ///
+  /// * [minVideoLength] for specifying the minimum length of the
+  /// output video.
+  ///
+  ///
   /// * [showDuration] for showing the start and the end point of the
   /// video on top of the trimmer area. By default it is set to `true`.
   ///
@@ -131,6 +138,7 @@ class FixedTrimViewer extends StatefulWidget {
     this.viewerWidth = 50.0 * 8,
     this.viewerHeight = 50,
     this.maxVideoLength = const Duration(milliseconds: 0),
+    this.minVideoLength = const Duration(milliseconds: 0),
     this.showDuration = true,
     this.durationTextStyle = const TextStyle(color: Colors.white),
     this.durationStyle = DurationStyle.FORMAT_HH_MM_SS,
@@ -176,6 +184,7 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
 
   double? fraction;
   double? maxLengthPixels;
+  double? minLengthPixels;
 
   FixedThumbnailViewer? thumbnailWidget;
 
@@ -255,6 +264,15 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
           maxLengthPixels = _thumbnailViewerW * maxLengthFraction;
         } else {
           maxLengthPixels = _thumbnailViewerW;
+        }
+
+        if (widget.minVideoLength > const Duration(milliseconds: 0) &&
+            widget.minVideoLength < totalDuration) {
+          final minLengthFraction = widget.minVideoLength.inMilliseconds /
+              totalDuration.inMilliseconds;
+          minLengthPixels = _thumbnailViewerW * minLengthFraction;
+        } else {
+          minLengthPixels = 0;
         }
 
         _videoEndPos = fraction != null
@@ -388,11 +406,17 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
   void _onDragUpdate(DragUpdateDetails details) {
     if (!_allowDrag) return;
 
+    final double newStartPos = _startPos.dx + details.delta.dx;
+    final double newEndPos = _endPos.dx + details.delta.dx;
+    final double currentLength = _endPos.dx - _startPos.dx;
+
     if (_dragType == EditorDragType.left) {
       _startCircleSize = widget.editorProperties.circleSizeOnDrag;
-      if ((_startPos.dx + details.delta.dx >= 0) &&
-          (_startPos.dx + details.delta.dx <= _endPos.dx) &&
-          !(_endPos.dx - _startPos.dx - details.delta.dx > maxLengthPixels!)) {
+      final newLength = currentLength - details.delta.dx;
+      if ((newStartPos >= 0) &&
+          (newStartPos <= _endPos.dx) &&
+          (newLength <= maxLengthPixels!) &&
+          (newLength >= minLengthPixels!)) {
         _startPos += details.delta;
         _onStartDragged();
       }
@@ -408,9 +432,11 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
       }
     } else {
       _endCircleSize = widget.editorProperties.circleSizeOnDrag;
-      if ((_endPos.dx + details.delta.dx <= _thumbnailViewerW) &&
-          (_endPos.dx + details.delta.dx >= _startPos.dx) &&
-          !(_endPos.dx - _startPos.dx + details.delta.dx > maxLengthPixels!)) {
+      final newLength = currentLength + details.delta.dx;
+      if ((newEndPos <= _thumbnailViewerW) &&
+          (newEndPos >= _startPos.dx) &&
+          (newLength <= maxLengthPixels!) &&
+          (newLength >= minLengthPixels!)) {
         _endPos += details.delta;
         _onEndDragged();
       }
