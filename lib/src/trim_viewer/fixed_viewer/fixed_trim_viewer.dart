@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:math' show max, min;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -407,38 +408,59 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
   void _onDragUpdate(DragUpdateDetails details) {
     if (!_allowDrag) return;
 
-    final double newStartPos = _startPos.dx + details.delta.dx;
-    final double newEndPos = _endPos.dx + details.delta.dx;
-    final double currentLength = _endPos.dx - _startPos.dx;
+    final dragDeltaDx = details.delta.dx;
+    final dragLocalPosDx = details.localPosition.dx;
 
     if (_dragType == EditorDragType.left) {
       _startCircleSize = widget.editorProperties.circleSizeOnDrag;
-      final newLength = currentLength - details.delta.dx;
-      if ((newStartPos >= 0) &&
-          (newStartPos <= _endPos.dx) &&
-          (newLength <= maxLengthPixels!) &&
-          (newLength >= minLengthPixels!)) {
-        _startPos += details.delta;
+
+      final double leftLimit = max(0.0, _endPos.dx - maxLengthPixels!);
+      final double rightLimit = _endPos.dx - minLengthPixels!;
+
+      final ignoreUpdate = (dragLocalPosDx < leftLimit && dragDeltaDx > 0) ||
+          (dragLocalPosDx > rightLimit && dragDeltaDx < 0);
+
+      if (!ignoreUpdate) {
+        final newStartPos =
+            (_startPos.dx + dragDeltaDx).clamp(leftLimit, rightLimit);
+
+        _startPos = Offset(newStartPos, _startPos.dy + details.delta.dy);
         _onStartDragged();
       }
     } else if (_dragType == EditorDragType.center) {
       _startCircleSize = widget.editorProperties.circleSizeOnDrag;
       _endCircleSize = widget.editorProperties.circleSizeOnDrag;
-      if ((_startPos.dx + details.delta.dx >= 0) &&
-          (_endPos.dx + details.delta.dx <= _thumbnailViewerW)) {
-        _startPos += details.delta;
-        _endPos += details.delta;
+
+      final currentLength = _endPos.dx - _startPos.dx;
+      final newStartPos = (_startPos.dx + dragDeltaDx)
+          .clamp(0.0, _thumbnailViewerW - currentLength);
+      final newEndPos =
+          (_endPos.dx + dragDeltaDx).clamp(currentLength, _thumbnailViewerW);
+
+      final ignoreUpdate =
+          newStartPos == _startPos.dx && newEndPos == _endPos.dx;
+
+      if (!ignoreUpdate) {
+        _startPos = Offset(newStartPos, _startPos.dy + details.delta.dy);
+        _endPos = Offset(newEndPos, _endPos.dy + details.delta.dy);
         _onStartDragged();
         _onEndDragged();
       }
     } else {
       _endCircleSize = widget.editorProperties.circleSizeOnDrag;
-      final newLength = currentLength + details.delta.dx;
-      if ((newEndPos <= _thumbnailViewerW) &&
-          (newEndPos >= _startPos.dx) &&
-          (newLength <= maxLengthPixels!) &&
-          (newLength >= minLengthPixels!)) {
-        _endPos += details.delta;
+
+      final double leftLimit = _startPos.dx + minLengthPixels!;
+      final double rightLimit =
+          min(_thumbnailViewerW, _startPos.dx + maxLengthPixels!);
+
+      final ignoreUpdate = (dragLocalPosDx < leftLimit && dragDeltaDx > 0) ||
+          (dragLocalPosDx > rightLimit && dragDeltaDx < 0);
+
+      if (!ignoreUpdate) {
+        final newEndPosition =
+            (_endPos.dx + dragDeltaDx).clamp(leftLimit, rightLimit);
+
+        _endPos = Offset(newEndPosition, _endPos.dy + details.delta.dy);
         _onEndDragged();
       }
     }
