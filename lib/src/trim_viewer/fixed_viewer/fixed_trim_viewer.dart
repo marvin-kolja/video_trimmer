@@ -398,6 +398,7 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
     } else {
       _dragType = EditorDragType.right;
     }
+    _seekVideoBasedOnDragType();
   }
 
   /// Called during dragging, only executed if [_allowDrag] was set to true in
@@ -442,6 +443,7 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
       }
     }
     setState(() {});
+    _seekVideoBasedOnDragType();
   }
 
   void _onStartDragged() {
@@ -469,10 +471,19 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
     setState(() {
       _startCircleSize = widget.editorProperties.circleSize;
       _endCircleSize = widget.editorProperties.circleSize;
+    });
+
+    _seekVideoBasedOnDragType();
+  }
+
+  void _seekVideoBasedOnDragType() {
+    setState(() {
       if (_dragType == EditorDragType.right) {
+        videoPlayerController.pause();
         videoPlayerController
             .seekTo(Duration(milliseconds: _videoEndPos.toInt()));
       } else {
+        videoPlayerController.pause();
         videoPlayerController
             .seekTo(Duration(milliseconds: _videoStartPos.toInt()));
       }
