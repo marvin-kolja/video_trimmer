@@ -517,6 +517,8 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
     });
 
     _seekVideoBasedOnDragType();
+
+    _animationController!.reset();
   }
 
   void _seekVideoBasedOnDragType() {
