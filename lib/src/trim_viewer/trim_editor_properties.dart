@@ -106,5 +106,6 @@ class TrimEditorProperties {
     this.borderPaintColor = Colors.white,
     this.scrubberPaintColor = Colors.white,
     this.sideTapSize = 24,
-  });
+  }) : assert(sideTapSize >= circleSize,
+            'sideTapSize must be greater than or equal to circleSize');
 }
