@@ -223,17 +223,16 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
       _thumbnailViewerW = trimmerActualWidth;
       _initializeVideoController();
       videoPlayerController.seekTo(const Duration(milliseconds: 0));
-      _numberOfThumbnails = trimmerActualWidth ~/ _thumbnailViewerH;
+      _numberOfThumbnails = (trimmerActualWidth / _thumbnailViewerH).round();
       log('numberOfThumbnails: $_numberOfThumbnails');
       log('thumbnailViewerW: $_thumbnailViewerW');
       setState(() {
-        _thumbnailViewerW = _numberOfThumbnails * _thumbnailViewerH;
-
         final FixedThumbnailViewer thumbnailWidget = FixedThumbnailViewer(
           videoFile: _videoFile!,
           videoDuration: _videoDuration,
           fit: widget.areaProperties.thumbnailFit,
           thumbnailHeight: _thumbnailViewerH,
+          thumbnailWidth: _thumbnailViewerW / _numberOfThumbnails,
           numberOfThumbnails: _numberOfThumbnails,
           quality: widget.areaProperties.thumbnailQuality,
           onThumbnailLoadingComplete: widget.onThumbnailLoadingComplete,

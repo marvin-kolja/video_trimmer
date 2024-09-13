@@ -9,6 +9,7 @@ class FixedThumbnailViewer extends StatelessWidget {
   final File videoFile;
   final int videoDuration;
   final double thumbnailHeight;
+  final double thumbnailWidth;
   final BoxFit fit;
   final int numberOfThumbnails;
   final VoidCallback onThumbnailLoadingComplete;
@@ -21,6 +22,7 @@ class FixedThumbnailViewer extends StatelessWidget {
     required this.videoFile,
     required this.videoDuration,
     required this.thumbnailHeight,
+    required this.thumbnailWidth,
     required this.numberOfThumbnails,
     required this.fit,
     required this.onThumbnailLoadingComplete,
@@ -72,7 +74,7 @@ class FixedThumbnailViewer extends StatelessWidget {
               numberOfThumbnails,
               (index) => SizedBox(
                 height: thumbnailHeight,
-                width: thumbnailHeight,
+                width: thumbnailWidth,
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
