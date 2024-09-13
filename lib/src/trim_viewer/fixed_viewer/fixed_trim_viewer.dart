@@ -390,14 +390,32 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
     }
 
     // Now we determine which part is dragged
-    if (details.localPosition.dx <=
-        _startPos.dx + widget.editorProperties.sideTapSize) {
-      _dragType = EditorDragType.left;
-    } else if (details.localPosition.dx <=
-        _endPos.dx - widget.editorProperties.sideTapSize) {
-      _dragType = EditorDragType.center;
+    if (startDifference == endDifference) {
+      // If the drag is the same distance from the `_startPos.dx` and
+      // `_endPos.dx`, we can assume that the points are the same.
+      // A positive value means the drag is to the left, a negative value
+      // means the drag is to the right.
+      if (startDifference > 0) {
+        _dragType = EditorDragType.left;
+      } else {
+        _dragType = EditorDragType.right;
+      }
     } else {
-      _dragType = EditorDragType.right;
+      if (normalizedLocalPos.dx <=
+          _startPos.dx + widget.editorProperties.sideTapSize) {
+        // If the drag is closer to the `_endPos.dx` than the `_startPos.dx`,
+        // we drag the right side instead.
+        if (startDifference.abs() > endDifference.abs()) {
+          _dragType = EditorDragType.right;
+        } else {
+          _dragType = EditorDragType.left;
+        }
+      } else if (normalizedLocalPos.dx <=
+          _endPos.dx - widget.editorProperties.sideTapSize) {
+        _dragType = EditorDragType.center;
+      } else {
+        _dragType = EditorDragType.right;
+      }
     }
     _seekVideoBasedOnDragType();
   }
