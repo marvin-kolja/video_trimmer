@@ -12,7 +12,7 @@
 </a>
 
 <p align="center">
-  <img src="screenshots/cover.png" alt="Video Trimmer" />
+  <img src="https://raw.githubusercontent.com/sbis04/video_trimmer/refs/heads/main/screenshots/cover.png" alt="Video Trimmer" />
 </p>
 
 <h4 align="center">A Flutter package for trimming videos</h4>
@@ -31,7 +31,7 @@ Also, supports conversion to **GIF**.
 Following image shows the structure of the `TrimViewer`. It consists of the `Duration` on top (displaying the start, end, and scrubber time), `TrimArea` consisting of the thumbnails, and `TrimEditor` which is an overlay that let's you select a portion from the video.
 
 <p align="center">
-  <img src="screenshots/trim_preview.png"/>
+  <img src="https://raw.githubusercontent.com/sbis04/video_trimmer/refs/heads/main/screenshots/trim_preview.png"/>
 </p>
 
 ## Example
@@ -39,7 +39,7 @@ Following image shows the structure of the `TrimViewer`. It consists of the `Dur
 The [example app](https://github.com/sbis04/video_trimmer/tree/main/example) running on an iPhone 13 Pro device:
 
 <p align="center">
-  <img src="screenshots/updated_trimmer_demo.gif" alt="Trimmer"/>
+  <img src="https://raw.githubusercontent.com/sbis04/video_trimmer/refs/heads/main/screenshots/updated_trimmer_demo.gif" alt="Trimmer"/>
 </p>
 
 ## Usage
@@ -50,14 +50,14 @@ For using main version of FFmpeg package:
 
 ```yaml
 dependencies:
-  video_trimmer: ^3.0.0
+  video_trimmer: ^4.0.0
 ```
 
 For using LTS version of FFmpeg package:
 
 ```yaml
 dependencies:
-  video_trimmer: ^3.0.0-LTS
+  video_trimmer: ^4.0.0-LTS
 ```
 
 ### Android configuration
@@ -407,7 +407,7 @@ On Android, if you still face the same issue, try adding the following to the `<
 
 ## License
 
-Copyright (c) 2023 Souvik Biswas
+Copyright (c) 2024 Souvik Biswas
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
