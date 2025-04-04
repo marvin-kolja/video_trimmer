@@ -219,7 +219,6 @@ class Trimmer {
   /// Clean up
   void dispose() {
     _progressStreamController.close();
-    _ffmpegSession?.cancel();
     _videoPlayerController?.dispose();
     _controller.close();
   }
