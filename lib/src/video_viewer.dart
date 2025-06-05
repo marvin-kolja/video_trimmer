@@ -69,13 +69,21 @@ class _VideoViewerState extends State<VideoViewer> {
     final controller = videoPlayerController;
     return controller == null
         ? Container()
-        : Expanded(
-            child: Flexible(
-              fit: controller.value.rotationCorrection == 0 ? FlexFit.loose : FlexFit.tight,
+        : Padding(
+            padding: const EdgeInsets.all(0.0),
+            child: Center(
               child: AspectRatio(
                 aspectRatio: controller.value.aspectRatio,
                 child: controller.value.isInitialized
-                    ? VideoPlayer(controller)
+                    ? Container(
+                        foregroundDecoration: BoxDecoration(
+                          border: Border.all(
+                            width: widget.borderWidth,
+                            color: widget.borderColor,
+                          ),
+                        ),
+                        child: VideoPlayer(controller),
+                      )
                     : const Center(
                         child: CircularProgressIndicator(
                           backgroundColor: Colors.white,
